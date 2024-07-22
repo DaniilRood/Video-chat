@@ -16,7 +16,6 @@
               <img :src="currentConversation.avatar">
             </q-avatar>
           </q-btn>
-
           <span class="q-subtitle-1 q-pl-md">
             {{ currentConversation.person }}
           </span>
@@ -167,10 +166,16 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { useQuasar } from 'quasar';
-import { ref, computed } from 'vue';
-import { SignedIn, SignedOut, SignInButton, UserButton } from 'vue-clerk';
+import { ref, computed, onMounted, watch } from 'vue';
+import { SignedIn, SignedOut, SignInButton, UserButton, useAuth, useClerk, useUser } from 'vue-clerk';
+import { useRouter } from 'vue-router';
+import gql from 'graphql-tag'
+import { provideApolloClient, useSubscription, useQuery,useMutation } from "@vue/apollo-composable";
+import apolloClient from "../apollo/apollo-client";
+provideApolloClient(apolloClient);
+
 
 
 const conversations = [
@@ -208,18 +213,22 @@ const conversations = [
   }
 ]
 
-export default {
-  name: 'WhatsappLayout',
-  components: { SignedIn, SignedOut, SignInButton, UserButton },
-
-  setup () {
     const $q = useQuasar()
-
+    const $router = useRouter()
+    const { getToken, isSignedIn } = useAuth();
     const leftDrawerOpen = ref(false)
     const search = ref('')
     const message = ref('')
     const currentConversationIndex = ref(0)
 
+    const { user } = useUser()
+    console.log(user.value);
+  //   const { result: users } = useSubscription(gql`subscription getUsers {
+  //   users {
+  //     id
+  //     name
+  //   }
+  // }`);
     const currentConversation = computed(() => {
       return conversations[ currentConversationIndex.value ]
     })
@@ -236,19 +245,41 @@ export default {
       currentConversationIndex.value = index
     }
 
-    return {
-      leftDrawerOpen,
-      search,
-      message,
-      currentConversationIndex,
-      conversations,
+  //   const { mutate: creatingUser } = useMutation(gql `mutation createUser(
+  //   $id: String
+  //   $name: String
+  // ) {
+  //   insert_users_one(
+  //     object: {
+  //       id: $id
+  //       name: $name
+  //     }
+  //   ) {
+  //     id
+  //   }
+  // }`);
+    
+    watch(isSignedIn, (isSignedIn) => {
+        if (!isSignedIn) {
+            return $router.push({ name: "login" });
+        }
+    });
+    // watch(user, async (user) => {
+    //     if (!user) {
+    //         return;
+    //     }
+    //     await creatingUser({
+    //       id: user.id,
+    //       name: user.firstName,
+    //     });
+    // });
 
-      currentConversation,
-      setCurrentConversation,
-      style,
+    onMounted( async() => {
+      const token = await getToken.value({ template: "hasura" })
+      localStorage.setItem(
+      "token",
+      token
+      );
+    })
 
-      toggleLeftDrawer
-    }
-  }
-}
 </script>

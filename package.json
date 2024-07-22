@@ -11,8 +11,13 @@
     "build": "quasar build"
   },
   "dependencies": {
+    "@apollo/client": "^3.8.6",
     "@clerk/clerk-js": "^5.9.0",
     "@quasar/extras": "^1.16.4",
+    "@vue/apollo-composable": "^4.0.0",
+    "graphql": "^16.8.1",
+    "graphql-tag": "^2.12.6",
+    "graphql-ws": "^5.14.0",
     "quasar": "^2.8.0",
     "vue": "^3.4.18",
     "vue-clerk": "^0.4.10",
@@ -20,6 +25,7 @@
   },
   "devDependencies": {
     "@quasar/app-vite": "^1.8.0",
+    "@quasar/quasar-app-extension-apollo": "^2.2.3",
     "autoprefixer": "^10.4.2",
     "postcss": "^8.4.14"
   },
